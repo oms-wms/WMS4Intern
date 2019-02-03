@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>出库单的修改</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/specific/outstock.css}"/>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/search.css}">
+
+</head>
+<style>
+    thead tr td {
+        text-align: center;
+    }
+</style>
+<body style="overflow-x:hidden;">
+<div>
+
+    <div class="main-body">
+        <div>
+            <div class="title">
+                <text>出库单信息</text>
+            </div>
+            <form th:action="@{/outRepoOrderController/updateOutRepoOrder}">
+                <div class="title-content">
+                    <div class="title-content1">
+                        <input name="id" th:value="${outRepoOrder.id}" />
+                        <div class="title-content1-top1">订单号：<input disabled="disabled" style="display:inline-block"
+                                                                    th:value="${outRepoOrder.orderId}"></div>
+                        <div class="title-content1-top2">渠道订单号：<input disabled="disabled" style="display:inline-block"
+                                                                      th:value="${outRepoOrder.channelId}"></div>
+                        <div class="title-content1-top3">同步状态：<input disabled="disabled" style="display:inline-block"
+                                                                     th:value="#{''+${outRepoOrder.SyncStatus}}"></div>
+                    </div>
+                    <div class="title-content2">
+                        <div class="title-content1-top1">收货人：<input disabled="disabled" style="display:inline-block"
+                                                                    th:value="${outRepoOrder.receiverName}"></div>
+                        <div class="title-content1-top2">快递公司：
+                            <select name="expressCompany">
+                                <a th:each="company:${expressCompany}">
+                                    <option th:value="${company.getExpressCompanyName()}"
+                                            th:text="${company.getExpressCompanyName()}"></option>
+                                </a>
+                            </select>
+                        </div>
+                        <div class="title-content1-top3">快递单号：<input name="expressId" id="expressId"
+                                                                     maxlength="15"
+                                                                     placeholder="输入十位以上快递单号(半角)"
+                                                                     style="display:inline-block"/></div>
+                    </div>
+                    <div class="title-content3">
+                        <div class="title-content1-top1">出库单状态：<input disabled="disabled" style="display:inline-block"
+                                                                      th:value="#{''+${outRepoOrder.outRepoStatus}}">
+                        </div>
+                        <div class="title-content1-top2">收货地址：<input disabled="disabled" style="display:inline-block"
+                                                                     th:value="${outRepoOrder.receiverAddress}"></div>
+                        <div class="title-content1-top3">发货时间：<input style="display:inline-block" type="date"
+                                                                     name="reviseTime" id="reviseTime">
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" id="close" style="float:right;margin-right: 50px;">确定</button>
+            </form>
+        </div>
+
+        <div class="main-content2">
+            <div class="main-content2-title">
+                <text style="font-size: 18px; font-weight: 600;">出库商品</text>
+            </div>
+            <table class="table table-condensed">
+                <thead>
+                <tr>
+                    <th style="width:150px;">出库单号</th>
+                    <th style="width:150px;">商品编码</th>
+                    <th>商品名称</th>
+                    <th>单价</th>
+                    <th>数量</th>
+                    <th>金额</th>
+                </tr>
+                </thead>
+                <tr th:each="orod:${outRepoOrderDetail}">
+                    <td th:text="${outRepoOrder.outRepoId}"></td>
+                    <td th:text="${orod.goodsSku}"></td>
+                    <td th:text="${orod.goodsName}"></td>
+                    <td th:text="${orod.price}"></td>
+                    <td th:text="${orod.num}"></td>
+                    <td th:text="${orod.price*orod.num}"></td>
+                </tr>
+
+            </table>
+        </div>
+
+
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        // $("#close").click(function () {
+        //     parent.closeIFrame();
+        // });
+        $("#expressId").on("keydown",function(event){
+
+        });
+
+
+
+        $('#close').click(function () {
+
+            var pattern = /^[0-9a-zA-Z]{11,}$/;
+            var expressId = $('#expressId').val();
+            var reviseTime = $('#reviseTime').val();
+            console.log(reviseTime);
+            if (pattern.test(expressId) == false) {
+                alert("请按照正确格式填写快递单号！");
+                return false;
+            }
+            if (reviseTime == "") {
+                alert("请填写发货日期！")
+                return false;
+            }
+            parent.closeIFrame();
+
+
+        });
+
+
+    });
+
+
+    // console.log(expressId);
+    // if(pattern.test(expressId) == false){
+    //     alert("请按照正确格式填写快递单号！");
+    //     closeButton.setAttribute("disabled", true);
+    // }else{
+    //     closeButton.removeAttribute("disabled");
+    // }
+
+</script>
+</body>
+</html>

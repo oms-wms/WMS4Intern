@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>出库</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script th:src="@{/js/popup/popup.js}"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/search.css}">
+    <script th:inline="javascript">
+        var page=[[${page}]];
+    </script>
+    <script th:src="@{/js/repertory/outRepo.js}"></script>
+
+</head>
+<body style="overflow-x:hidden;background:#f3f3f3;">
+<div id="mask_shadow">
+</div>
+<div class="btn-div">
+    <button type="button" class="btn btn-primary action" id="waittingPackaged">检货</button>
+    <button type="button" class="btn btn-primary action" id="waittingShipped">包装</button>
+    <!--<button type="button" class="btn btn-primary action" id="haveShipped">发货</button>-->
+    <button type="button" class="btn btn-primary cancel" id="haveCanceled">取消</button>
+    <div class="search-box">
+        <form th:action="@{/outRepoOrderController/unclearSelect}" method="post" name="frm">
+            <select name="selectStatus" id="selectStatus">
+                <option value="">库单状态</option>
+                <option value="waittingChecked">待检货</option>
+                <option value="waittingPackaged">待包装</option>
+                <option value="waittingShipped">待发货</option>
+                <option value="haveShipped">已发货</option>
+                <option value="haveCanceled">已取消</option>
+            </select>
+            <input type="text" id="outRepoOrderId" name="outRepoOrderId" autocomplete="off" th:value="${outRepoOrderId}" placeholder="请输入出库单号" />
+            <input id="saveStatusFromBack" type="hidden" th:value="${selectStatus}">
+            <input id="currPage" name="currPage" type="hidden" />
+            <button type="submit" class="btn btn-success">搜索</button>
+        </form>
+    </div>
+</div>
+<div>
+    <table class="table table-condensed">
+        <thead>
+        <tr>
+            <th>批量</th>
+            <th>订单号</th>
+            <th>出库单状态</th>
+            <th>出库单号</th>
+            <th>同步状态</th>
+            <th>收货人</th>
+            <th>快递公司</th>
+            <th>快递单号</th>
+            <th>收货地址</th>
+            <th>创建时间</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+
+
+        <tr th:each="p,pstatus:${page.data}">
+            <td><input type="checkbox" name="checkboxName" th:value="${p.id}"></td>
+            <td th:text="${p.orderId}"></td>
+            <td th:text="#{''+${p.outRepoStatus}}"></td>
+            <td th:text="${p.outRepoId}"></td>
+            <td th:text="#{''+${p.syncStatus}}"></td>
+            <td th:text="${p.receiverName}"></td>
+            <td th:text="${p.expressCompany}"></td>
+            <td th:text="${p.expressId}"></td>
+            <td th:text="${p.receiverAddress}"></td>
+            <td th:text="${#dates.format(p.createTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td>
+                <button type="button" class="btn btn-default btn-xs" th:id="${p.id}">查看</button>
+                <t th:if="${p.outRepoStatus!='waittingShipped'}">
+                    <button type="button" class="btn btn-danger btn-xs" disabled="disabled" th:id="${p.id}">发货</button>
+                </t>
+                <t th:if="${p.outRepoStatus=='waittingShipped'}">
+                    <button type="button" class="btn btn-danger btn-xs" th:id="${p.id}">发货</button>
+                </t>
+
+            </td>
+        </tr>
+
+
+        </tbody>
+    </table>
+</div>
+<!-- 弹出框 -->
+<div class="modal fade" id="demoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel"></h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <input class="receiveButtonId" id="receiveButtonId" type="hidden">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary"
+                        th:onclick="'javascript:changeStatus()'" data-dismiss="modal">提交更改
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<div class="footer-pager">
+    <span>共<span th:text="${page.totalPage}"></span>页，当前第<span th:text="${page.currPage}"></span>页</span>
+    <ul class="pagination">
+        <li><a th:if="${page.currPage}>1" th:href="'javascript:go('+${page.currPage-1}+');'">&laquo;</a></li>
+        <!--<li class="active"><a href="#">1</a></li>
+        <li class="disabled"><a href="#">2</a></li>-->
+        <li><a th:if="${page.currPage-1}>0" th:href="'javascript:go('+${page.currPage-1}+');'"
+               th:text="${page.currPage-1}"></a></li>
+        <li><a th:href="'javascript:go('+${page.currPage}+');'" th:text="${page.currPage}"></a></li>
+        <li><a th:if="${page.currPage+1}<${page.totalPage+1}" th:href="'javascript:go('+${page.currPage+1}+');'"
+               th:text="${page.currPage+1}"></a></li>
+        <li><a th:if="${page.currPage}<${page.totalPage}" th:href="'javascript:go('+${page.currPage+1}+');'">
+            &raquo;</a>
+        </li>
+    </ul>
+</div>
+<div id="popup" class="popup">
+    <div class="title">
+        <p>出库单详情</p>
+        <span></span>
+        <span>x</span>
+    </div>
+    <div class="cont">
+        <iframe src="" scrolling="auto" id="iframeId" name="iframeId"
+                style="width:100%;height:100%;border:0px;"></iframe>
+    </div>
+</div>
+<script>
+    $(function () {
+        $('#popup').popup();
+        $("body").css("overflow-y", "hidden");
+    });
+</script>
+</body>
+</html>

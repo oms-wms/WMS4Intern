@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>异常订单管理</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="/js/popup/popup.js"></script>
+
+    <link rel="stylesheet" href="/css/search.css">
+
+</head>
+<body style="overflow-x:hidden;background:#f3f3f3;">
+    <div id="mask_shadow"></div>
+    <div class="btn-div">
+        <div class="search-box">
+            <form action="/exception/findByKey" method="get" name="frm">
+                <input name="key" type="text" th:value="${key}" placeholder="请输入公司名称">
+                <input name="currPage" type="hidden" id="currPage"/>
+                <button  type="submit" class="btn btn-success">搜索</button>
+            </form>
+        </div>
+    </div>
+    <div>
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>出库单号</th>
+                    <th>异常状态</th>
+                    <th>快递公司</th>
+                    <th>创建时间</th>
+                    <th>修改时间</th>
+                    <th>修改人</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="obj,i:${page.getList()}">
+                    <td th:text="${i.count}"></td>
+                    <td th:text="${obj.orderId}"></td>
+                    <td th:text="#{''+${obj.outRepoStatus}}"></td>
+                    <td th:text="${obj.expressCompany}"></td>
+                    <td th:text="${#dates.format(obj.createTime, 'YYYY/MM/DD HH:mm')}"></td>
+                    <td th:text="${#dates.format(obj.reviseTime, 'YYYY/MM/DD HH:mm')}"></td>
+                    <td th:text="${obj.reviser}"></td>
+                    <td>
+                        <a type="button" class="btn btn-default btn-xs ck1" th:name="${obj.id}">查看</a>
+                        <a type="button" class="btn btn-default" style="width: 36px;height: 22px;font-size: 12px;padding: 1px 5px;" th:href="@{/exception/feedback(outRepoId=${obj.id})}">处理</a>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+    <div class="footer-pager">
+        <span>共<span th:text="${page.pages}"></span>页，当前第<span th:text="${page.pageNum}"></span>页</span>
+        <ul class="pagination">
+            <li>
+                <a th:href="'javascript:go('+${page.pageNum+(-1)}+');'">&laquo;</a>
+            </li>
+            <li><a th:if="${page.pageNum}>1" th:href="'javascript:go('+${page.pageNum+(-1)}+');'"
+                   th:text="${page.pageNum}-1"></a></li>
+            <li class="active"><a th:href="'javascript:go('+${page.pageNum}+');'" th:text="${page.pageNum}"></a></li>
+            <li><a th:if="${page.pageNum+1}<=${page.pages}" th:href="'javascript:go('+${page.pageNum+1}+');'"
+                   th:text="${page.pageNum+1}"></a></li>
+            <li th:if="${page.pageNum}==1"><a th:if="${page.pageNum+2}<=${page.pages}"
+                                              th:href="'javascript:go('+${page.pageNum+1}+');'"
+                                              th:text="${page.pageNum+2}"></a></li>
+            <li><a th:href="'javascript:go('+${page.pageNum+1}+');'">
+                &raquo;</a>
+            </li>
+        </ul>
+    </div>
+    <div id="popup" class="popup" style="top: -50px">
+        <div class="title">
+            <p>异常订单详情</p>
+            <span></span>
+            <span>x</span>
+        </div>
+        <div class="cont">
+            <iframe id="iframeId" src="" scrolling="auto" style="width:100%;height:100%;border:0px;"></iframe>
+        </div>
+    </div>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/exception/all.js"></script>
+
+</body>
+</html>
